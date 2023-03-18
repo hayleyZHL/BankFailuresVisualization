@@ -32,16 +32,18 @@
       
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
-        const requestData = async function() {
-        const FDICdata = await d3.csv('data4.csv');
+        
+    const requestData = async function() {
+        const FDICdata = await d3.csv('data.csv');
         let selectedCircle = null;
         const data1 = [];
+
         function parseCurrencyStringToNumber(str) {
             const cleanedString = str.replace(/[^0-9.]+/g, "");
             const number = parseFloat(cleanedString);
             return number;
         }
-console.log(FDICdata)
+
         FDICdata.forEach((d) => {
             const name = Number(d['ID']);
             const transaction = String(d['Acquirer & Transaction'])
@@ -53,184 +55,177 @@ console.log(FDICdata)
             const deposit = parseCurrencyStringToNumber(d['Approx. Deposit (Millions)']);
             data1.push([name, [asset, deposit, bankName, location, closeTime, Release,transaction]]);
         });
-        console.log(data1)
+
         const data = data1.sort((a, b) => b[1][0] - a[1][0]).slice(0, 50);
-        console.log(data)
-let maxValue = 0;
-data.forEach((d) => {
-  const [asset, deposit, bankName, location, closeTime, Release, transaction] = d[1];
-  maxValue = Math.max(maxValue, asset, deposit);
-});
-
-const scale = d3.scaleLinear()
-  .domain([0, maxValue])
-  .range([0, 100]);
-
-function scaledValue(value) {
-  return scale(value);
-}
-
-const nodes = data.map(([label, [value1, value2, name, location, closeTime, Release, transaction]]) => {
-  const scaledValue1 = scaledValue(value1);
-  const scaledValue2 = scaledValue(value2);
-  const total = scaledValue1 + scaledValue2;
-  return {
-    label,
-    value1,
-    name,
-    location,
-    closeTime,
-    Release,
-    transaction,
-    value2,
-    scaledValue1,
-    scaledValue2,
-    radius: Math.sqrt(total / Math.PI)*20,
-  };
-});
-
-
-const width = 800;
-const height = 800;
-
-const svg = d3.select("#chart");
-function ticked() {
-    bubbles.attr("transform", d => `translate(${d.x}, ${d.y})`);
-}
-
-const simulation = d3.forceSimulation(nodes)
-    .force("charge", d3.forceManyBody().strength(5))
-    .force("collide", d3.forceCollide().radius(d => d.radius))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("x", d3.forceX().strength(0.1).x(width / 2))
-  .force("y", d3.forceY().strength(0.1).y(height / 2))
-    .on("tick", ticked);
-
-const bubbles = svg.selectAll("g")
-    .data(nodes)
-    .join("g")
-    .call(drag(simulation));
-
-const defs = svg.append("defs");
-
-bubbles.each(function(d) {
-    const patternId = `pattern-${d.label}`;
-    console.log(patternId)
-
-    const pattern = defs.append("pattern")
-        .attr("id", patternId)
-        .attr("patternUnits", "objectBoundingBox")
-        .attr("width", 1)
-        .attr("height", 1);
-
-    const patternSvg = pattern.append("svg")
-        .attr("width", d.radius * 2)
-        .attr("height", d.radius * 2);
-
-    const ratio = (d.scaledValue1/(d.scaledValue1+d.scaledValue2))
-    console.log(ratio)
-    patternSvg.append("rect")
-        .attr("class", "react1")
-        .attr("width", d.radius * 2 * ratio)
-        .attr("height", d.radius * 2)
-        .attr("fill", "#c4d7ea");
-
-    patternSvg.append("rect")
-    .attr("class", "react2")
-        .attr("x", d.radius * 2 * ratio)
-        .attr("width", d.radius * 2 * (1 - ratio))
-        .attr("height", d.radius * 2)
-        .attr("fill", "#fbcdcd");
-});
-
-
-bubbles.append("circle")
-    .attr("r", d => d.radius)
-    .attr("fill", d => `url(#pattern-${d.label})`)
-    .on("mouseover", function(event, d) {
-        d3.select(event.currentTarget).style("cursor", "pointer")
-        d3.select(`#pattern-${d.label}`).select(".react1").attr("fill", "#a9d3fc");
-        d3.select(`#pattern-${d.label}`).select(".react2").attr("fill", "#faa5a5");
-    })
-    .on("mouseout", function(event, d) {
-        d3.select(event.currentTarget).style("cursor", "default")
-        d3.select(`#pattern-${d.label}`).select(".react1").attr("fill", "#c4d7ea");
-        d3.select(`#pattern-${d.label}`).select(".react2").attr("fill", "#fbcdcd");
-    })
-    .on("click", (event, d) => {
-        if (selectedCircle !== null) {
-                        selectedCircle.style("stroke-width", 0)
-                                    .style("stroke", "None")
-                    }
-                    d3.select(event.currentTarget)
-                                    .style("stroke-width", 3)
-                                    .style("stroke", "black")
-                    selectedCircle = d3.select(event.currentTarget);
-        d3.select("#info").html(`Bank: ${d.name} 
-            <br> Location: ${d.location} 
-            <br> Closing Time: ${d.closeTime} 
-            <br> Press Release (PR): ${d.Release}
-            <br> Approx. Asset (Millions): $${d.value1}
-            <br> Approx. Deposit (Millions): $${d.value2}
-            <br> Acquirer & Transaction: ${d.transaction}`);
-    });
-// Append the labels
-bubbles.append("text")
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "middle")
-    .attr("font-size", d => d.radius / 6)
-    .attr("dy", d => -d.radius / 8)
-    .text(d => d.name)
-    .attr("fill", "black");
-
-// Append the values
-bubbles.append("text")
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "middle")
-    .attr("font-size", d => d.radius / 4)
-    .attr("dy", d => d.radius / 8)
-    .text(d => `${d.value1}-${d.value2}`)
-    .attr("fill", "black");
-
-    
-    function drag(simulation) {
-        function dragstarted(event) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
+        let maxValue = 0;
+        data.forEach((d) => {
+          const [asset, deposit, bankName, location, closeTime, Release, transaction] = d[1];
+          maxValue = Math.max(maxValue, asset, deposit);
+        });
+        const scale = d3.scaleLinear()
+          .domain([0, maxValue])
+          .range([0, 100]);
+        function scaledValue(value) {
+          return scale(value);
         }
-        
-        function dragged(event) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
+
+        const nodes = data.map(([label, [value1, value2, name, location, closeTime, Release, transaction]]) => {
+          const scaledValue1 = scaledValue(value1);
+          const scaledValue2 = scaledValue(value2);
+          const total = scaledValue1 + scaledValue2;
+          return {
+            label,
+            value1,
+            name,
+            location,
+            closeTime,
+            Release,
+            transaction,
+            value2,
+            scaledValue1,
+            scaledValue2,
+            radius: Math.sqrt(total / Math.PI)*20,
+          };
+        });
+
+        const width = 800;
+        const height = 800;
+        const svg = d3.select("#chart");
+
+        function ticked() {
+            bubbles.attr("transform", d => `translate(${d.x}, ${d.y})`);
         }
-        
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("charge", d3.forceManyBody().strength(5))
+            .force("collide", d3.forceCollide().radius(d => d.radius))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX().strength(0.1).x(width / 2))
+          .force("y", d3.forceY().strength(0.1).y(height / 2))
+            .on("tick", ticked);
+
+        const bubbles = svg.selectAll("g")
+            .data(nodes)
+            .join("g")
+            .call(drag(simulation));
+
+        const defs = svg.append("defs");
+
+        bubbles.each(function(d) {
+            const patternId = `pattern-${d.label}`;
+            console.log(patternId)
+
+            const pattern = defs.append("pattern")
+                .attr("id", patternId)
+                .attr("patternUnits", "objectBoundingBox")
+                .attr("width", 1)
+                .attr("height", 1);
+
+            const patternSvg = pattern.append("svg")
+                .attr("width", d.radius * 2)
+                .attr("height", d.radius * 2);
+
+            const ratio = (d.scaledValue1/(d.scaledValue1+d.scaledValue2))
+            console.log(ratio)
+            patternSvg.append("rect")
+                .attr("class", "react1")
+                .attr("width", d.radius * 2 * ratio)
+                .attr("height", d.radius * 2)
+                .attr("fill", "#c4d7ea");
+
+            patternSvg.append("rect")
+            .attr("class", "react2")
+                .attr("x", d.radius * 2 * ratio)
+                .attr("width", d.radius * 2 * (1 - ratio))
+                .attr("height", d.radius * 2)
+                .attr("fill", "#fbcdcd");
+        });
+
+        bubbles.append("circle")
+            .attr("r", d => d.radius)
+            .attr("fill", d => `url(#pattern-${d.label})`)
+            .on("mouseover", function(event, d) {
+                d3.select(event.currentTarget).style("cursor", "pointer")
+                d3.select(`#pattern-${d.label}`).select(".react1").attr("fill", "#a9d3fc");
+                d3.select(`#pattern-${d.label}`).select(".react2").attr("fill", "#faa5a5");
+            })
+            .on("mouseout", function(event, d) {
+                d3.select(event.currentTarget).style("cursor", "default")
+                d3.select(`#pattern-${d.label}`).select(".react1").attr("fill", "#c4d7ea");
+                d3.select(`#pattern-${d.label}`).select(".react2").attr("fill", "#fbcdcd");
+            })
+            .on("click", (event, d) => {
+                if (selectedCircle !== null) {
+                                selectedCircle.style("stroke-width", 0)
+                                            .style("stroke", "None")
+                            }
+                            d3.select(event.currentTarget)
+                                            .style("stroke-width", 3)
+                                            .style("stroke", "black")
+                            selectedCircle = d3.select(event.currentTarget);
+                d3.select("#info").html(`Bank: ${d.name}
+                    <br> Location: ${d.location}
+                    <br> Closing Time: ${d.closeTime}
+                    <br> Press Release (PR): ${d.Release}
+                    <br> Approx. Asset (Millions): $${d.value1}
+                    <br> Approx. Deposit (Millions): $${d.value2}
+                    <br> Acquirer & Transaction: ${d.transaction}`);
+            });
+
+        // Append the labels
+        bubbles.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", d => d.radius / 6)
+            .attr("dy", d => -d.radius / 8)
+            .text(d => d.name)
+            .attr("fill", "black");
+
+        // Append the values
+        bubbles.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", d => d.radius / 4)
+            .attr("dy", d => d.radius / 8)
+            .text(d => `${d.value1}-${d.value2}`)
+        .attr("fill", "black");
+
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
+
+        function zoomed(event) {
+            bubbles.attr("transform", d => `translate(${event.transform.applyX(d.x)}, ${event.transform.applyY(d.y)}) scale(${event.transform.k})`);
+        }
+
         function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0);
+            if (!event.active) {
+                simulation.alphaTarget(0);
+                zoomBehavior.scaleTo(svg, 1);
+                zoomBehavior.translateTo(svg, width / 2, height / 2);
+            }
             event.subject.fx = null;
             event.subject.fy = null;
         }
-        
-        return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-    }
 
-    function zoomed(event) {
-    bubbles.attr("transform", d => `translate(${event.transform.applyX(d.x)}, ${event.transform.applyY(d.y)}) scale(${event.transform.k})`);
-}
-function dragended(event) {
-    if (!event.active) {
-        simulation.alphaTarget(0);
-        zoomBehavior.scaleTo(svg, 1);
-        zoomBehavior.translateTo(svg, width / 2, height / 2);
     }
-    event.subject.fx = null;
-    event.subject.fy = null;
-}
-
-        }
     requestData()
     </script>
 </body>
