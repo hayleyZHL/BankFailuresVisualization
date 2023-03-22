@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two-color Keyword Bubble Chart</title>
+    <title>Bank Failures</title>
     <style>
         body {
             font-family: sans-serif;
@@ -28,7 +28,9 @@
 
 <body>
 
-<h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Top 50 Bank Bubble Chart</h1>
+<h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Top 50 Bank Failures</h1>
+<h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The size of the bubble represents the total assets/deposits of failed banks,
+    <br>click to show the timeline!</h2>
 <div id = "bubbleChart" style="font-family: NYTFranklin, Georgia, serif; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px;">
     <div style="background-color: #fbcdcd; width: 30px; height: 20px; margin-right: 5px;"></div>
     <span>Approx. Asset (Millions)</span>
@@ -38,8 +40,24 @@
 <div>    
     <div style="position: relative; display: flex; align-items: center;font-family: NYTFranklin, Georgia, serif;">
         <div style="position: absolute; left: 0; top: 0;">
-            <button id="sortButton">Rank as Closing Time</button>
-            <button id="backButton">Rank as default</button>
+            <!-- Radio button: one choice only -->
+<!--            <form id="form" class="btn-group btn-group-toggle" data-toggle="buttons">-->
+<!--                <label class="btn btn-secondary active">-->
+<!--                    <input type="radio" name="controlHeatmapType" value="MRR" checked>Option 1<br>-->
+<!--                </label>-->
+<!--                <label class="btn btn-secondary">-->
+<!--                    <input type="radio" name="controlHeatmapType" value="LYL">Option 2<br>-->
+<!--                </label>-->
+<!--            </form>-->
+            <!-- Radio button: one choice only -->
+            <label>
+                <input type="radio" name="timeline" id="sortButton" value="Show Timeline">
+                Show Timeline
+            </label>
+            <label>
+                <input type="radio" name="timeline" id="backButton" value="Default" checked>
+                Back To Default
+            </label>
             <svg id="chart" width="1200" height="800"></svg>
         </div>
         <div id="info" width="800" height="800" style="position: absolute; left: 1210px; transform: translateY(100%); font-size: 20px;"></div>
@@ -47,10 +65,12 @@
 </div>
 <br/>
 <hr class="solid" style="margin-top: 800px;font-family: NYTFranklin, Georgia, serif;">
-<div id = "popchart" style="margin-top: 0px;font-family: NYTFranklin, Georgia, serif;">
+<div style="margin-top: 0px;font-family: NYTFranklin, Georgia, serif;">
     <h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Bank Failures Lollipop Chart</h1>
     <h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The number of petals represents the number of failed banks,
     <br>and the length of the stem represents the total assets of the failed banks.</h2>
+    <button id="replayButton">Replay Animation</button>
+    <svg id="popchart"></svg>
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -108,7 +128,6 @@
             radius: Math.sqrt(total / Math.PI)*20,
           };
         });
-
         const width = 1000;
         const height = 800;
         const svg = d3.select("#chart");
@@ -122,7 +141,7 @@
             .force("collide", d3.forceCollide().radius(d => d.radius))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("x", d3.forceX().strength(0.1).x(width / 2))
-          .force("y", d3.forceY().strength(0.1).y(height / 2))
+            .force("y", d3.forceY().strength(0.1).y(height / 2))
             .on("tick", ticked);
         const bubbles = svg.selectAll("g")
             .data(nodes)
@@ -227,10 +246,7 @@
         // sort the banks by their closing time
         function sortByClosingTime() {
             const margin = {top: 50, left: 50, right: 50, bottom: 50};
-            nodes.forEach(d => {
-                d.date = d3.timeParse("%d-%b-%y")(d.closeTime);
-                console.log(d.date)
-            });
+            nodes.forEach(d => { d.date = d3.timeParse("%d-%b-%y")(d.closeTime); });
             nodes.sort((a, b) => a.date - b.date);
             const xScale = d3.scaleTime()
                 .domain([new Date(1999, 0, 1), new Date(2025, 0, 1)])
@@ -299,7 +315,6 @@
             width = 1200 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
         const svg2 = d3.select("#popchart")
-            .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -389,9 +404,8 @@
             .attr("y", -margin.left / 1.5)
             .attr("x", -height / 2)
             .text("Total Asset");
-        d3.select("body")
-            .append("button")
-            .text("Reply")
+        // option to replay the animation
+        d3.select("#replayButton")
             .on("click", () => {
                 svg2.selectAll(".flowerpiece").remove();
                 svg2.selectAll(".myline").remove();
