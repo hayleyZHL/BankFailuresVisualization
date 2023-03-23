@@ -29,27 +29,28 @@
 <body>
 <br/><br/><br/>
 <h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Bubble Chart: Top 50 Bank Failures</h1>
-<h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The size of the bubble represents the total assets/deposits of failed banks,
-    <br>click to show the timeline!</h2>
+<h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The size of the bubble represents the total assets/deposits of failed banks.</h2>
 <div id = "bubbleChart" style="font-family: NYTFranklin, Georgia, serif; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px;">
     <div style="background-color: #fbcdcd; width: 30px; height: 20px; margin-right: 5px;"></div>
     <span>Asset (Millions)</span>
     <div style="background-color: #c4d7ea; width: 30px; height: 20px; margin: 0px 5px;"></div>
     <span>Deposit (Millions)</span>
 </div>
-<div>
-    <div style="position: relative; display: flex; align-items: center;font-family: NYTFranklin, Georgia, serif;">
-        <div style="position: absolute; left: 0; top: 0;">
-            <label>
-                <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>
-                Timeline
-            </label>
-            <label>
-                <input type="radio" name="timeline" id="backButton" value="Default">
-                Default
-            </label>
+<div style="margin-left: auto; margin-right:auto">
+    <div style="margin:auto;font-family: NYTFranklin, Georgia, serif;">
+        <div>
+            <div>
+                <label>
+                    <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>
+                    Timeline
+                </label>
+                <label>
+                    <input type="radio" name="timeline" id="backButton" value="Default">
+                    Default
+                </label>
+            </div>
             <svg id="chart" width="1200" height="800" style="margin: 0 auto"></svg>
-            <div id="info" style="position: absolute; font-size: 20px;"></div>
+            <div id="info" style="width:1000px; margin:auto;font-size: 20px;"></div>
         </div>
     </div>
 </div>
