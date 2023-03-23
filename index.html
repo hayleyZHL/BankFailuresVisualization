@@ -38,7 +38,7 @@
 
 <body>
 <br/>
-<h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Bubble Chart: Top 50 Bank Failures</h1>
+<h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Top 50 Bank Failures</h1>
 <h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The size of the bubble represents the total assets/deposits of failed banks.</h2>
 <div id = "bubbleChart" style="font-family: NYTFranklin, Georgia, serif; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px;">
     <div style="background-color: #fbcdcd; width: 30px; height: 20px; margin-right: 5px;"></div>
@@ -71,11 +71,10 @@
     <h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Lollipop/Petal Chart: All Bank Failures From 2001-2023</h1>
     <h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The number of petals represents the number of failed banks,
     <br> and the length of the stem represents the total assets of the failed banks. </h2>
-    <div style="width: 100px; margin:auto">
+    <svg id="popchart"></svg>
+     <div style="width: 150px; margin-left: auto; margin-right: auto; margin-top:50px">
         <button id="replayButton">Replay Animation</button>
     </div>    
-        
-    <svg id="popchart"></svg>
 </div>
 <br/><br/><br/><br/>
 
