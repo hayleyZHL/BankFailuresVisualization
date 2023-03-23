@@ -33,9 +33,9 @@
     <br>click to show the timeline!</h2>
 <div id = "bubbleChart" style="font-family: NYTFranklin, Georgia, serif; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px;">
     <div style="background-color: #fbcdcd; width: 30px; height: 20px; margin-right: 5px;"></div>
-    <span>Approx. Asset (Millions)</span>
+    <span>Asset (Millions)</span>
     <div style="background-color: #c4d7ea; width: 30px; height: 20px; margin: 0px 5px;"></div>
-    <span>Approx. Deposit (Millions)</span>
+    <span>Deposit (Millions)</span>
 </div>
 <div>    
     <div style="position: relative; display: flex; align-items: center;font-family: NYTFranklin, Georgia, serif;">
@@ -51,12 +51,12 @@
 <!--            </form>-->
             <!-- Radio button: one choice only -->
             <label>
-                <input type="radio" name="timeline" id="sortButton" value="Show Timeline">
-                Show Timeline
+                <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>
+                Timeline
             </label>
             <label>
-                <input type="radio" name="timeline" id="backButton" value="Default" checked>
-                Back To Default
+                <input type="radio" name="timeline" id="backButton" value="Default">
+                Default
             </label>
             <svg id="chart" width="1200" height="800"></svg>
         </div>
@@ -68,7 +68,7 @@
 <div style="margin-top: 0px;font-family: NYTFranklin, Georgia, serif;">
     <h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Bank Failures Lollipop Chart</h1>
     <h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The number of petals represents the number of failed banks,
-    <br>and the length of the stem represents the total assets of the failed banks.</h2>
+    <br> and the length of the stem represents the total assets of the failed banks. </h2>
     <button id="replayButton">Replay Animation</button>
     <svg id="popchart"></svg>
 </div>
@@ -281,6 +281,7 @@
         document.getElementById("backButton").addEventListener("click", function() {
             sortByDefualt();
         });
+        sortByClosingTime();
     }
     requestData();
 
