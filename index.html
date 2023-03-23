@@ -6,74 +6,79 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Failures</title>
-    <style>
-        body {
-            font-family: sans-serif;
-        }
-        svg {
-            display: block;
-            margin: auto;
-        }
-        .axis text {
-            font-size: 12px;
-        }
-        .axis path,
-        .axis line {
-            fill: none;
-            stroke: black;
-            shape-rendering: crispEdges;
-        }
-        .button {
-              background-color: #CCCCCC; 
-              border: none;
-              color: white;
-              padding: 15px 32px;
-              text-align: center;
-              text-decoration: none;
-              display: inline-block;
-              font-size: 16px;
-            }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-<h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Top 50 Bank Failures</h1>
-<h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The size of the bubble represents the total assets/deposits of failed banks.</h2>
-<div id = "bubbleChart" style="font-family: NYTFranklin, Georgia, serif; text-align: center; display: flex; justify-content: center; align-items: center; margin-top: 10px;">
+<h1>Top 50 Bank Failures</h1>
+<h2>The size of the bubble represents the total assets/deposits of failed banks.</h2>
+<div id = "bubble-legend" style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
     <div style="background-color: #fbcdcd; width: 30px; height: 20px; margin-right: 5px;"></div>
     <span>Asset (Millions)</span>
     <div style="background-color: #c4d7ea; width: 30px; height: 20px; margin: 0px 5px;"></div>
     <span>Deposit (Millions)</span>
 </div>
-<div style="margin-left: auto; margin-right:auto">
-    <div style="margin:auto;font-family: NYTFranklin, Georgia, serif;">
-        <div>
-            <div style="width:200px; margin-left: auto; margin-right:auto; margin-top:30px">
-                <label>
-                    <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>
-                    Timeline
-                </label>
-                <label>
-                    <input type="radio" name="timeline" id="backButton" value="Default">
-                    Default
-                </label>
-            </div>
-            <svg id="chart" width="1200" height="800" style="margin: 0 auto"></svg>
-            <div id="info" style="width:1000px; margin:auto;font-size: 20px;"></div>
-        </div>
-    </div>
+<div class="radio-buttons">
+    <label class="radio-item">
+        <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>
+        <span class="radio-dot"></span>
+        Timeline
+    </label>
+    <label class="radio-item">
+        <input type="radio" name="timeline" id="backButton" value="Default">
+        <span class="radio-dot"></span>
+        Default
+    </label>
 </div>
-<hr class="solid" style="margin-top: 60px;font-family: NYTFranklin, Georgia, serif;">
-<div style="margin-top: 0px;font-family: NYTFranklin, Georgia, serif;">
-    <h1 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">Lollipop/Petal Chart: All Bank Failures From 2001-2023</h1>
-    <h2 style="font-family: NYTFranklin, Georgia, serif; text-align: center;">The number of petals represents the number of failed banks,
+<svg id="chart" width="1200" height="800"></svg>
+<div id="info" style="width:1000px; margin:auto;font-size: 20px;"></div>
+<hr style="margin-top: 60px;">
+<h1>Lollipop/Petal Chart: All Bank Failures From 2001-2023</h1>
+<h2>The number of petals represents the number of failed banks,
     <br> and the length of the stem represents the total assets of the failed banks. </h2>
-    <svg id="popchart"></svg>
-     <div style="width: 150px; margin-left: auto; margin-right: auto; margin-top:50px">
-        <button id="replayButton">Replay Animation</button>
-    </div>    
+<svg id="popchart"></svg>
+<div style="width: 150px; margin-left: auto; margin-right: auto; margin-top:50px">
+    <button id="replayButton">Replay Animation</button>
 </div>
-<br/><br/><br/><br/>
+<!--<h1>Top 50 Bank Failures</h1>-->
+<!--<h2>The size of the bubble represents the total assets/deposits of failed banks.</h2>-->
+<!--<div id = "bubbleChart" style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">-->
+<!--    <div style="background-color: #fbcdcd; width: 30px; height: 20px; margin-right: 5px;"></div>-->
+<!--    <span>Asset (Millions)</span>-->
+<!--    <div style="background-color: #c4d7ea; width: 30px; height: 20px; margin: 0px 5px;"></div>-->
+<!--    <span>Deposit (Millions)</span>-->
+<!--</div>-->
+<!--<div style="margin-left: auto; margin-right:auto">-->
+<!--    <div style="margin:auto;">-->
+<!--        <div>-->
+<!--            <div class="radio-buttons">-->
+<!--                <label class="radio-item">-->
+<!--                    <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>-->
+<!--                    <span class="radio-dot"></span>-->
+<!--                    Timeline-->
+<!--                </label>-->
+<!--                <label class="radio-item">-->
+<!--                    <input type="radio" name="timeline" id="backButton" value="Default">-->
+<!--                    <span class="radio-dot"></span>-->
+<!--                    Default-->
+<!--                </label>-->
+<!--            </div>-->
+<!--            <svg id="chart" width="1200" height="800" style="margin: 0 auto"></svg>-->
+<!--            <div id="info" style="width:1000px; margin:auto;font-size: 20px;"></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<hr class="solid" style="margin-top: 60px;">-->
+<!--<div style="margin-top: 0px;font-family: NYTFranklin, Georgia, serif;">-->
+<!--    <h1>Lollipop/Petal Chart: All Bank Failures From 2001-2023</h1>-->
+<!--    <h2>The number of petals represents the number of failed banks,-->
+<!--    <br> and the length of the stem represents the total assets of the failed banks. </h2>-->
+<!--    <svg id="popchart"></svg>-->
+<!--     <div style="width: 150px; margin-left: auto; margin-right: auto; margin-top:50px">-->
+<!--        <button id="replayButton">Replay Animation</button>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<br/><br/><br/><br/>-->
 
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
