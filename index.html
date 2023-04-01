@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Bank Failures</title>
-    <link rel="stylesheet" href="styles.css">
+    <link href="styles.css" rel="stylesheet">
 </head>
 
 <body>
@@ -14,17 +14,17 @@
 <h2>The size of the bubble represents the total assets/deposits of failed banks.</h2>
 <div class="radio-buttons">
     <label class="radio-item">
-        <input type="radio" name="timeline" id="sortButton" value="Show Timeline" checked>
+        <input checked id="sortButton" name="timeline" type="radio" value="Show Timeline">
         <span class="radio-dot"></span>
         Timeline
     </label>
     <label class="radio-item">
-        <input type="radio" name="timeline" id="backButton" value="Default">
+        <input id="backButton" name="timeline" type="radio" value="Default">
         <span class="radio-dot"></span>
         Default
     </label>
 </div>
-<svg id="bubblechart" width="1200" height="800"></svg>
+<svg height="800" id="bubblechart" width="1200"></svg>
 <div id="info" style="width:1000px; font-size: 20px;"></div>
 <hr style="margin-top: 60px;">
 <h1>Lollipop/Petal Chart: All Bank Failures From 2001-2023</h1>
@@ -40,7 +40,7 @@
     const parseCurrencyStringToNumber = str => parseFloat(str.replace(/[^0-9.]+/g, ""));
 
     // Bubble Chart
-    const requestData = async function() {
+    const requestData = async function () {
 
         const FDICdata = await d3.csv('data.csv');
         let selectedCircle = null;
@@ -54,13 +54,13 @@
             const closeTime = String(d['Closing Date']);
             const asset = parseCurrencyStringToNumber(d['Approx. Asset (Millions)']);
             const deposit = parseCurrencyStringToNumber(d['Approx. Deposit (Millions)']);
-            data1.push([name, [asset, deposit, bankName, location, closeTime, Release,transaction]]);
+            data1.push([name, [asset, deposit, bankName, location, closeTime, Release, transaction]]);
         });
         const data = data1.sort((a, b) => b[1][0] - a[1][0]).slice(0, 50);
         let maxValue = 0;
         data.forEach((d) => {
-          const [asset, deposit, bankName, location, closeTime, Release, transaction] = d[1];
-          maxValue = Math.max(maxValue, asset, deposit);
+            const [asset, deposit, bankName, location, closeTime, Release, transaction] = d[1];
+            maxValue = Math.max(maxValue, asset, deposit);
         });
 
         const width = 1000;
@@ -68,11 +68,11 @@
         const svg = d3.select("#bubblechart");
 
         const scale = d3.scaleLinear()
-          .domain([0, maxValue])
-          .range([0, 100]);
+            .domain([0, maxValue])
+            .range([0, 100]);
 
         function scaledValue(value) {
-          return scale(value);
+            return scale(value);
         }
 
         const bubble_legend = svg.append("g")
@@ -105,22 +105,22 @@
             .attr("fill", "#000");
 
         const nodes = data.map(([label, [value1, value2, name, location, closeTime, Release, transaction]]) => {
-          const scaledValue1 = scaledValue(value1);
-          const scaledValue2 = scaledValue(value2);
-          const total = scaledValue1 + scaledValue2;
-          return {
-            label,
-            value1,
-            name,
-            location,
-            closeTime,
-            Release,
-            transaction,
-            value2,
-            scaledValue1,
-            scaledValue2,
-            radius: Math.sqrt(total / Math.PI)*20,
-          };
+            const scaledValue1 = scaledValue(value1);
+            const scaledValue2 = scaledValue(value2);
+            const total = scaledValue1 + scaledValue2;
+            return {
+                label,
+                value1,
+                name,
+                location,
+                closeTime,
+                Release,
+                transaction,
+                value2,
+                scaledValue1,
+                scaledValue2,
+                radius: Math.sqrt(total / Math.PI) * 20,
+            };
         });
 
         function ticked() {
@@ -142,7 +142,7 @@
         // const linesAndText = svg.append("g");
         const defs = svg.append("defs");
 
-        bubbles.each(function(d) {
+        bubbles.each(function (d) {
             const patternId = `pattern-${d.label}`;
             console.log(patternId)
             const pattern = defs.append("pattern")
@@ -153,14 +153,14 @@
             const patternSvg = pattern.append("svg")
                 .attr("width", d.radius * 2)
                 .attr("height", d.radius * 2);
-            const ratio = (d.scaledValue1/(d.scaledValue1+d.scaledValue2))
+            const ratio = (d.scaledValue1 / (d.scaledValue1 + d.scaledValue2))
             patternSvg.append("rect")
                 .attr("class", "react1")
                 .attr("width", d.radius * 2 * ratio)
                 .attr("height", d.radius * 2)
                 .attr("fill", "#c4d7ea");
             patternSvg.append("rect")
-            .attr("class", "react2")
+                .attr("class", "react2")
                 .attr("x", d.radius * 2 * ratio)
                 .attr("width", d.radius * 2 * (1 - ratio))
                 .attr("height", d.radius * 2)
@@ -170,25 +170,25 @@
         bubbles.append("circle")
             .attr("r", d => d.radius)
             .attr("fill", d => `url(#pattern-${d.label})`)
-            .on("mouseover", function(event, d) {
+            .on("mouseover", function (event, d) {
                 d3.select(event.currentTarget).style("cursor", "pointer")
                 d3.select(`#pattern-${d.label}`).select(".react1").attr("fill", "#a9d3fc");
                 d3.select(`#pattern-${d.label}`).select(".react2").attr("fill", "#faa5a5");
             })
-            .on("mouseout", function(event, d) {
+            .on("mouseout", function (event, d) {
                 d3.select(event.currentTarget).style("cursor", "default")
                 d3.select(`#pattern-${d.label}`).select(".react1").attr("fill", "#c4d7ea");
                 d3.select(`#pattern-${d.label}`).select(".react2").attr("fill", "#fbcdcd");
             })
             .on("click", (event, d) => {
                 if (selectedCircle !== null) {
-                                selectedCircle.style("stroke-width", 0)
-                                            .style("stroke", "None")
-                            }
-                            d3.select(event.currentTarget)
-                                            .style("stroke-width", 3)
-                                            .style("stroke", "black")
-                            selectedCircle = d3.select(event.currentTarget);
+                    selectedCircle.style("stroke-width", 0)
+                        .style("stroke", "None")
+                }
+                d3.select(event.currentTarget)
+                    .style("stroke-width", 3)
+                    .style("stroke", "black")
+                selectedCircle = d3.select(event.currentTarget);
                 d3.select("#info").html(`<span class="info-label">Bank:</span> ${d.name}
                         <br> <span class="info-label">Location:</span> ${d.location}
                         <br> <span class="info-label">Acquirer &amp; Transaction:</span> ${d.transaction}`);
@@ -210,6 +210,7 @@
             .attr("dy", d => d.radius / 8)
             .text(d => `${d.value1}-${d.value2}`)
             .attr("fill", "black");
+
         // drag event for the bubble chart
         function drag(simulation) {
             function dragstarted(event) {
@@ -217,28 +218,34 @@
                 event.subject.fx = event.subject.x;
                 event.subject.fy = event.subject.y;
             }
+
             function dragged(event) {
                 event.subject.fx = event.x;
                 event.subject.fy = event.y;
             }
+
             function dragended(event) {
                 if (!event.active) simulation.alphaTarget(0);
                 event.subject.fx = null;
                 event.subject.fy = null;
             }
+
             return d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended);
         }
+
         // sort the banks by their closing time
         function sortByClosingTime() {
             const margin = {top: 50, left: 50, right: 50, bottom: 50};
-            nodes.forEach(d => { d.date = d3.timeParse("%d-%b-%y")(d.closeTime); });
+            nodes.forEach(d => {
+                d.date = d3.timeParse("%d-%b-%y")(d.closeTime);
+            });
             nodes.sort((a, b) => a.date - b.date);
             const xScale = d3.scaleTime()
                 .domain([new Date(1999, 0, 1), new Date(2025, 0, 1)])
-                .range([margin.left-10, width - margin.right]);
+                .range([margin.left - 10, width - margin.right]);
             const xAxis = d3.axisTop(xScale)
                 .tickFormat(d3.timeFormat("%Y-%m-%d"))
                 .tickSizeOuter(0)
@@ -255,18 +262,21 @@
             simulation.on("tick", ticked);
             bubbles.raise();
         }
-        document.getElementById("sortButton").addEventListener("click", function() {
+
+        document.getElementById("sortButton").addEventListener("click", function () {
             sortByClosingTime();
         });
+
         function sortByDefualt() {
-          simulation.force("charge", d3.forceManyBody().strength(5))
-            .force("collide", d3.forceCollide().radius(d => d.radius))
-            .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("x", d3.forceX().strength(0.1).x(width / 2))
-          .force("y", d3.forceY().strength(0.1).y(height / 2)).alpha(2).restart();
+            simulation.force("charge", d3.forceManyBody().strength(5))
+                .force("collide", d3.forceCollide().radius(d => d.radius))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("x", d3.forceX().strength(0.1).x(width / 2))
+                .force("y", d3.forceY().strength(0.1).y(height / 2)).alpha(2).restart();
             svg.selectAll(".xAxis").remove();
         }
-        document.getElementById("backButton").addEventListener("click", function() {
+
+        document.getElementById("backButton").addEventListener("click", function () {
             sortByDefualt();
         });
         sortByClosingTime();
@@ -274,7 +284,7 @@
     requestData();
 
     // Petal chart
-    const popchart = function() {
+    const popchart = function () {
         const data = [
             {year: 2001, bankFailures: 4, totalAssets: 2358.6},
             {year: 2002, bankFailures: 11, totalAssets: 2705.4},
@@ -348,51 +358,51 @@
             return `M${cx},${cy} Q${x1},${y1} ${x2},${y2} Q${x3},${y3} ${cx},${cy}`;
         };
         data.forEach(d => {
-        const cx = x(d.year);
-        const cy = y(d.totalAssets);
-        const length = 40;
-        const numPetals = Math.ceil(d.bankFailures);
-        const angleIncrement = (Math.PI / 2) / (numPetals + 1);
-        const maxAngle = Math.PI / 6;
-        const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
+            const cx = x(d.year);
+            const cy = y(d.totalAssets);
+            const length = 40;
+            const numPetals = Math.ceil(d.bankFailures);
+            const angleIncrement = (Math.PI / 2) / (numPetals + 1);
+            const maxAngle = Math.PI / 6;
+            const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
 
-        for (let i = 0; i < numPetals; i++) {
-            // const angle = i * angleIncrement + startAngle;
-            svg2.append("path")
-                .attr("class", "flowerpiece")
-                .attr("id", `petal-${d.year}-${i}`)
-                .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
-                .attr("fill", "pink")
-                .attr("stroke", "black")
-                .attr("stroke-width", 0.1)
-                .transition()
-                .duration(1000)
-                .delay(i * 20)
-                .attr("d", drawPetal(x(d.year), y(d.totalAssets), length, i * angleIncrement + startAngle))
-                .on("end", () => {
-                    if (i === numPetals - 1) { // Add the text only when the last petal animation ends
-                        svg2.append("text")
-                            .attr("class", "amount")
-                            .attr("x", x(d.year))
-                            .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
-                            .attr("text-anchor", "middle")
-                            .text(d.bankFailures);
-                    }
-                });
+            for (let i = 0; i < numPetals; i++) {
+                // const angle = i * angleIncrement + startAngle;
+                svg2.append("path")
+                    .attr("class", "flowerpiece")
+                    .attr("id", `petal-${d.year}-${i}`)
+                    .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
+                    .attr("fill", "pink")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1)
+                    .transition()
+                    .duration(1000)
+                    .delay(i * 20)
+                    .attr("d", drawPetal(x(d.year), y(d.totalAssets), length, i * angleIncrement + startAngle))
+                    .on("end", () => {
+                        if (i === numPetals - 1) { // Add the text only when the last petal animation ends
+                            svg2.append("text")
+                                .attr("class", "amount")
+                                .attr("x", x(d.year))
+                                .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
+                                .attr("text-anchor", "middle")
+                                .text(d.bankFailures);
+                        }
+                    });
             }
         });
         // labels
         svg2.append("text")
             .attr("class", "axis-title")
             .attr("x", width / 2)
-            .attr("y", height + margin.bottom / 1.5)
-            .text("Time");
+            .attr("y", height + margin.bottom)
+            .text("Year");
         svg2.append("text")
             .attr("class", "axis-title")
             .attr("transform", "rotate(-90)")
             .attr("y", -margin.left / 1.5)
             .attr("x", -height / 2)
-            .text("Total Asset");
+            .text("Total Assets");
         // option to replay the animation
         d3.select("#replayButton")
             .on("click", () => {
@@ -401,49 +411,49 @@
                 svg2.selectAll(".amount").remove();
                 data.forEach((d, index) => {
                     svg2.append("line")
-                    .attr("class", "myline")
-                    .attr("x1", x(d.year))
-                    .attr("y1", y(0))
-                    .attr("x2", x(d.year))
-                    .attr("y2", y(0))
-                    .attr("stroke", "green")
-                    .attr("stroke-width", "1.5px")
+                        .attr("class", "myline")
+                        .attr("x1", x(d.year))
+                        .attr("y1", y(0))
+                        .attr("x2", x(d.year))
+                        .attr("y2", y(0))
+                        .attr("stroke", "green")
+                        .attr("stroke-width", "1.5px")
                         .transition()
                         .duration(1000)
                         .delay(index * 500)
                         .attr("y2", y(d.totalAssets))
                         .on("end", () => {
-                        const numPetals = Math.ceil(d.bankFailures);
-                        const angleIncrement = (Math.PI / 2) / (numPetals + 1);
-                        const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
-                        for (let i = 0; i < numPetals; i++) {
-                            svg2.append("path")
-                                .attr("class", "flowerpiece")
-                                .attr("id", `petal-${d.year}-${i}`)
-                                .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
-                                .attr("fill", "pink")
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 0.1)
-                                .transition()
-                                .duration(1000)
-                                .delay(i * 20)
-                                .attr("d", drawPetal(x(d.year), y(d.totalAssets), 40, i * angleIncrement + startAngle))
-                                .on("end", () => {
-                                    if (i === numPetals - 1) { // Add the text only when the last petal animation ends
-                                        svg2.append("text")
-                                            .attr("class", "amount")
-                                            .attr("x", x(d.year))
-                                            .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
-                                            .attr("text-anchor", "middle")
-                                            .text(d.bankFailures);
-                                    }
-                                });
+                            const numPetals = Math.ceil(d.bankFailures);
+                            const angleIncrement = (Math.PI / 2) / (numPetals + 1);
+                            const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
+                            for (let i = 0; i < numPetals; i++) {
+                                svg2.append("path")
+                                    .attr("class", "flowerpiece")
+                                    .attr("id", `petal-${d.year}-${i}`)
+                                    .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
+                                    .attr("fill", "pink")
+                                    .attr("stroke", "black")
+                                    .attr("stroke-width", 0.1)
+                                    .transition()
+                                    .duration(1000)
+                                    .delay(i * 20)
+                                    .attr("d", drawPetal(x(d.year), y(d.totalAssets), 40, i * angleIncrement + startAngle))
+                                    .on("end", () => {
+                                        if (i === numPetals - 1) { // Add the text only when the last petal animation ends
+                                            svg2.append("text")
+                                                .attr("class", "amount")
+                                                .attr("x", x(d.year))
+                                                .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
+                                                .attr("text-anchor", "middle")
+                                                .text(d.bankFailures);
+                                        }
+                                    });
                             }
                         });
-                    });
+                });
             });
     }
     popchart();
-    </script>
+</script>
 </body>
 </html>
