@@ -36,6 +36,13 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+    // Bubble Chart SVG
+    const bubbleWidth = 1000;
+    const bubbleHeight = 800;
+    const bubbleSVG = d3.select("#bubblechart");
+    // Petal Chart SVG
+    const popSVG = d3.select("#popchart");
+
     // Helper Function
     const parseCurrencyStringToNumber = str => parseFloat(str.replace(/[^0-9.]+/g, ""));
 
@@ -63,10 +70,6 @@
             maxValue = Math.max(maxValue, asset, deposit);
         });
 
-        const width = 1000;
-        const height = 800;
-        const svg = d3.select("#bubblechart");
-
         const scale = d3.scaleLinear()
             .domain([0, maxValue])
             .range([0, 100]);
@@ -75,7 +78,7 @@
             return scale(value);
         }
 
-        const bubble_legend = svg.append("g")
+        const bubble_legend = bubbleSVG.append("g")
             .attr("id", "legend")
             .attr("transform", `translate(80,70)`);
 
@@ -123,6 +126,7 @@
             };
         });
 
+        // Updates the bubbles on every tick of simulation
         function ticked() {
             bubbles.attr("transform", d => `translate(${d.x}, ${d.y})`);
         }
@@ -130,17 +134,16 @@
         const simulation = d3.forceSimulation(nodes)
             .force("charge", d3.forceManyBody().strength(5))
             .force("collide", d3.forceCollide().radius(d => d.radius))
-            .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("x", d3.forceX().strength(0.1).x(width / 2))
-            .force("y", d3.forceY().strength(0.1).y(height / 2))
+            .force("center", d3.forceCenter(bubbleWidth / 2, bubbleHeight / 2))
+            .force("x", d3.forceX().strength(0.1).x(bubbleWidth / 2))
+            .force("y", d3.forceY().strength(0.1).y(bubbleHeight / 2))
             .on("tick", ticked);
-        const bubbles = svg.selectAll("g.bubble")
+        const bubbles = bubbleSVG.selectAll("g.bubble")
             .data(nodes)
             .join("g")
             .attr("class", "bubble")
             .call(drag(simulation));
-        // const linesAndText = svg.append("g");
-        const defs = svg.append("defs");
+        const defs = bubbleSVG.append("defs");
 
         bubbles.each(function (d) {
             const patternId = `pattern-${d.label}`;
@@ -245,12 +248,12 @@
             nodes.sort((a, b) => a.date - b.date);
             const xScale = d3.scaleTime()
                 .domain([new Date(1999, 0, 1), new Date(2025, 0, 1)])
-                .range([margin.left - 10, width - margin.right]);
+                .range([margin.left - 10, bubbleWidth - margin.right]);
             const xAxis = d3.axisTop(xScale)
                 .tickFormat(d3.timeFormat("%Y-%m-%d"))
                 .tickSizeOuter(0)
-                .tickSizeInner(-height + margin.top + margin.bottom);
-            svg.append("g")
+                .tickSizeInner(-bubbleHeight + margin.top + margin.bottom);
+            bubbleSVG.append("g")
                 .attr("class", "xAxis")
                 .attr("transform", `translate(${margin.left}, ${margin.top - 0})`)
                 .style("stroke", "grey")
@@ -267,18 +270,19 @@
             sortByClosingTime();
         });
 
-        function sortByDefualt() {
+        function sortByDefault() {
             simulation.force("charge", d3.forceManyBody().strength(5))
                 .force("collide", d3.forceCollide().radius(d => d.radius))
-                .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("x", d3.forceX().strength(0.1).x(width / 2))
-                .force("y", d3.forceY().strength(0.1).y(height / 2)).alpha(2).restart();
-            svg.selectAll(".xAxis").remove();
+                .force("center", d3.forceCenter(bubbleWidth / 2, bubbleHeight / 2))
+                .force("x", d3.forceX().strength(0.1).x(bubbleWidth / 2))
+                .force("y", d3.forceY().strength(0.1).y(bubbleHeight / 2)).alpha(2).restart();
+            bubbleSVG.selectAll(".xAxis").remove();
         }
-
         document.getElementById("backButton").addEventListener("click", function () {
-            sortByDefualt();
+            sortByDefault();
         });
+
+        // Initialize
         sortByClosingTime();
     }
     requestData();
@@ -313,8 +317,7 @@
         const margin = {top: 60, right: 60, bottom: 60, left: 100},
             width = 1200 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
-        const svg2 = d3.select("#popchart")
-            .attr("width", width + margin.left + margin.right)
+        popSVG.attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform",
@@ -323,7 +326,7 @@
             .range([0, width])
             .domain(data.map(d => d.year))
             .padding(1);
-        svg2.append("g")
+        popSVG.append("g")
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x))
             .selectAll("text")
@@ -332,9 +335,9 @@
         const y = d3.scaleLinear()
             .domain([0, d3.max(data, d => d.totalAssets)])
             .range([height, 0]);
-        svg2.append("g")
+        popSVG.append("g")
             .call(d3.axisLeft(y));
-        svg2.selectAll(".myline")
+        popSVG.selectAll(".myline")
             .data(data)
             .enter()
             .append("line")
@@ -368,7 +371,7 @@
 
             for (let i = 0; i < numPetals; i++) {
                 // const angle = i * angleIncrement + startAngle;
-                svg2.append("path")
+                popSVG.append("path")
                     .attr("class", "flowerpiece")
                     .attr("id", `petal-${d.year}-${i}`)
                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
@@ -381,7 +384,7 @@
                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), length, i * angleIncrement + startAngle))
                     .on("end", () => {
                         if (i === numPetals - 1) { // Add the text only when the last petal animation ends
-                            svg2.append("text")
+                            popSVG.append("text")
                                 .attr("class", "amount")
                                 .attr("x", x(d.year))
                                 .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
@@ -392,12 +395,12 @@
             }
         });
         // labels
-        svg2.append("text")
+        popSVG.append("text")
             .attr("class", "axis-title")
             .attr("x", width / 2)
             .attr("y", height + margin.bottom)
             .text("Year");
-        svg2.append("text")
+        popSVG.append("text")
             .attr("class", "axis-title")
             .attr("transform", "rotate(-90)")
             .attr("y", -margin.left / 1.5)
@@ -406,11 +409,11 @@
         // option to replay the animation
         d3.select("#replayButton")
             .on("click", () => {
-                svg2.selectAll(".flowerpiece").remove();
-                svg2.selectAll(".myline").remove();
-                svg2.selectAll(".amount").remove();
+                popSVG.selectAll(".flowerpiece").remove();
+                popSVG.selectAll(".myline").remove();
+                popSVG.selectAll(".amount").remove();
                 data.forEach((d, index) => {
-                    svg2.append("line")
+                    popSVG.append("line")
                         .attr("class", "myline")
                         .attr("x1", x(d.year))
                         .attr("y1", y(0))
@@ -427,7 +430,7 @@
                             const angleIncrement = (Math.PI / 2) / (numPetals + 1);
                             const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
                             for (let i = 0; i < numPetals; i++) {
-                                svg2.append("path")
+                                popSVG.append("path")
                                     .attr("class", "flowerpiece")
                                     .attr("id", `petal-${d.year}-${i}`)
                                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
@@ -440,7 +443,7 @@
                                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), 40, i * angleIncrement + startAngle))
                                     .on("end", () => {
                                         if (i === numPetals - 1) { // Add the text only when the last petal animation ends
-                                            svg2.append("text")
+                                            popSVG.append("text")
                                                 .attr("class", "amount")
                                                 .attr("x", x(d.year))
                                                 .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
