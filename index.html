@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<h1>Top 50 Bank Failures</h1>
+<h1>Top 100 Bank Failures From 2000 - 2023 </h1>
 <h2>The size of the bubble represents the total assets/deposits of failed banks.</h2>
 <div class="radio-buttons">
     <label class="radio-item">
@@ -63,7 +63,8 @@
             const deposit = parseCurrencyStringToNumber(d['Approx. Deposit (Millions)']);
             data1.push([name, [asset, deposit, bankName, location, closeTime, Release, transaction]]);
         });
-        const data = data1.sort((a, b) => b[1][0] - a[1][0]).slice(0, 50);
+        // Top 100 Bank Failures
+        const data = data1.sort((a, b) => b[1][0] - a[1][0]).slice(0, 100);
         let maxValue = 0;
         data.forEach((d) => {
             const [asset, deposit, bankName, location, closeTime, Release, transaction] = d[1];
