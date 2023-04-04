@@ -279,6 +279,7 @@
                 .force("y", d3.forceY().strength(0.1).y(bubbleHeight / 2)).alpha(2).restart();
             bubbleSVG.selectAll(".xAxis").remove();
         }
+
         document.getElementById("backButton").addEventListener("click", function () {
             sortByDefault();
         });
@@ -318,7 +319,8 @@
         const margin = {top: 60, right: 60, bottom: 60, left: 100},
             width = 1200 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
-        popSVG.attr("width", width + margin.left + margin.right)
+        const svg2 = d3.select("#popchart")
+            .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform",
@@ -327,7 +329,7 @@
             .range([0, width])
             .domain(data.map(d => d.year))
             .padding(1);
-        popSVG.append("g")
+        svg2.append("g")
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x))
             .selectAll("text")
@@ -336,9 +338,9 @@
         const y = d3.scaleLinear()
             .domain([0, d3.max(data, d => d.totalAssets)])
             .range([height, 0]);
-        popSVG.append("g")
+        svg2.append("g")
             .call(d3.axisLeft(y));
-        popSVG.selectAll(".myline")
+        svg2.selectAll(".myline")
             .data(data)
             .enter()
             .append("line")
@@ -372,7 +374,7 @@
 
             for (let i = 0; i < numPetals; i++) {
                 // const angle = i * angleIncrement + startAngle;
-                popSVG.append("path")
+                svg2.append("path")
                     .attr("class", "flowerpiece")
                     .attr("id", `petal-${d.year}-${i}`)
                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
@@ -385,7 +387,7 @@
                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), length, i * angleIncrement + startAngle))
                     .on("end", () => {
                         if (i === numPetals - 1) { // Add the text only when the last petal animation ends
-                            popSVG.append("text")
+                            svg2.append("text")
                                 .attr("class", "amount")
                                 .attr("x", x(d.year))
                                 .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
@@ -396,12 +398,12 @@
             }
         });
         // labels
-        popSVG.append("text")
+        svg2.append("text")
             .attr("class", "axis-title")
             .attr("x", width / 2)
             .attr("y", height + margin.bottom)
             .text("Year");
-        popSVG.append("text")
+        svg2.append("text")
             .attr("class", "axis-title")
             .attr("transform", "rotate(-90)")
             .attr("y", -margin.left / 1.5)
@@ -410,11 +412,11 @@
         // option to replay the animation
         d3.select("#replayButton")
             .on("click", () => {
-                popSVG.selectAll(".flowerpiece").remove();
-                popSVG.selectAll(".myline").remove();
-                popSVG.selectAll(".amount").remove();
+                svg2.selectAll(".flowerpiece").remove();
+                svg2.selectAll(".myline").remove();
+                svg2.selectAll(".amount").remove();
                 data.forEach((d, index) => {
-                    popSVG.append("line")
+                    svg2.append("line")
                         .attr("class", "myline")
                         .attr("x1", x(d.year))
                         .attr("y1", y(0))
@@ -431,7 +433,7 @@
                             const angleIncrement = (Math.PI / 2) / (numPetals + 1);
                             const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
                             for (let i = 0; i < numPetals; i++) {
-                                popSVG.append("path")
+                                svg2.append("path")
                                     .attr("class", "flowerpiece")
                                     .attr("id", `petal-${d.year}-${i}`)
                                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), 0, i * angleIncrement + startAngle))
@@ -444,7 +446,7 @@
                                     .attr("d", drawPetal(x(d.year), y(d.totalAssets), 40, i * angleIncrement + startAngle))
                                     .on("end", () => {
                                         if (i === numPetals - 1) { // Add the text only when the last petal animation ends
-                                            popSVG.append("text")
+                                            svg2.append("text")
                                                 .attr("class", "amount")
                                                 .attr("x", x(d.year))
                                                 .attr("y", y(d.totalAssets) - 50) // Adjust this value to position the text above the petals
