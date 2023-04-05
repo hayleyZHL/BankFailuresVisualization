@@ -63,44 +63,38 @@
             const deposit = parseCurrencyStringToNumber(d['Approx. Deposit (Millions)']);
             data1.push([name, [asset, deposit, bankName, location, closeTime, Release, transaction]]);
         });
-        // Top 100 Bank Failures
-        const data = data1.sort((a, b) => b[1][0] - a[1][0]).slice(0, 100);
+        // Top 50 Bank Failures
+        const data = data1.sort((a, b) => b[1][0] - a[1][0]).slice(0, 50);
+        // scales and legend
         let maxValue = 0;
         data.forEach((d) => {
-            const [asset, deposit, bankName, location, closeTime, Release, transaction] = d[1];
+            const [asset, deposit] = d[1];
             maxValue = Math.max(maxValue, asset, deposit);
         });
-
         const scale = d3.scaleLinear()
             .domain([0, maxValue])
             .range([0, 100]);
-
         function scaledValue(value) {
             return scale(value);
         }
-
         const bubble_legend = bubbleSVG.append("g")
             .attr("id", "legend")
             .attr("transform", `translate(80,70)`);
-
         bubble_legend.append("rect")
             .attr("width", 30)
             .attr("height", 20)
             .style("fill", "#fbcdcd");
-
         bubble_legend.append("text")
             .attr("x", 40)
             .attr("y", 15)
             .text("Asset (Millions)")
             .attr("font-size", "15px")
             .attr("fill", "#000");
-
         bubble_legend.append("rect")
             .attr("y", 30)
             .attr("width", 30)
             .attr("height", 20)
             .style("fill", "#c4d7ea");
-
         bubble_legend.append("text")
             .attr("x", 40)
             .attr("y", 45)
@@ -108,6 +102,7 @@
             .attr("font-size", "15px")
             .attr("fill", "#000");
 
+        // create nodes
         const nodes = data.map(([label, [value1, value2, name, location, closeTime, Release, transaction]]) => {
             const scaledValue1 = scaledValue(value1);
             const scaledValue2 = scaledValue(value2);
@@ -131,7 +126,7 @@
         function ticked() {
             bubbles.attr("transform", d => `translate(${d.x}, ${d.y})`);
         }
-
+        // simulate force
         const simulation = d3.forceSimulation(nodes)
             .force("charge", d3.forceManyBody().strength(5))
             .force("collide", d3.forceCollide().radius(d => d.radius))
@@ -145,10 +140,9 @@
             .attr("class", "bubble")
             .call(drag(simulation));
         const defs = bubbleSVG.append("defs");
-
+        // define properties for each bubble
         bubbles.each(function (d) {
             const patternId = `pattern-${d.label}`;
-            console.log(patternId)
             const pattern = defs.append("pattern")
                 .attr("id", patternId)
                 .attr("patternUnits", "objectBoundingBox")
@@ -170,7 +164,7 @@
                 .attr("height", d.radius * 2)
                 .attr("fill", "#fbcdcd");
         });
-
+        // draw bubble
         bubbles.append("circle")
             .attr("r", d => d.radius)
             .attr("fill", d => `url(#pattern-${d.label})`)
@@ -197,7 +191,6 @@
                         <br> <span class="info-label">Location:</span> ${d.location}
                         <br> <span class="info-label">Acquirer &amp; Transaction:</span> ${d.transaction}`);
             });
-
         // labels
         bubbles.append("text")
             .attr("text-anchor", "middle")
@@ -206,7 +199,6 @@
             .attr("dy", d => -d.radius / 8)
             .text(d => d.name)
             .attr("fill", "black");
-        // values
         bubbles.append("text")
             .attr("text-anchor", "middle")
             .attr("dominant-baseline", "middle")
@@ -222,24 +214,20 @@
                 event.subject.fx = event.subject.x;
                 event.subject.fy = event.subject.y;
             }
-
             function dragged(event) {
                 event.subject.fx = event.x;
                 event.subject.fy = event.y;
             }
-
             function dragended(event) {
                 if (!event.active) simulation.alphaTarget(0);
                 event.subject.fx = null;
                 event.subject.fy = null;
             }
-
             return d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended);
         }
-
         // sort the banks by their closing time
         function sortByClosingTime() {
             const margin = {top: 50, left: 50, right: 50, bottom: 50};
@@ -266,11 +254,10 @@
             simulation.on("tick", ticked);
             bubbles.raise();
         }
-
+        // add event listeners
         document.getElementById("sortButton").addEventListener("click", function () {
             sortByClosingTime();
         });
-
         function sortByDefault() {
             simulation.force("charge", d3.forceManyBody().strength(5))
                 .force("collide", d3.forceCollide().radius(d => d.radius))
@@ -279,7 +266,6 @@
                 .force("y", d3.forceY().strength(0.1).y(bubbleHeight / 2)).alpha(2).restart();
             bubbleSVG.selectAll(".xAxis").remove();
         }
-
         document.getElementById("backButton").addEventListener("click", function () {
             sortByDefault();
         });
@@ -363,17 +349,13 @@
             const y3 = cy + length * Math.sin(angle);
             return `M${cx},${cy} Q${x1},${y1} ${x2},${y2} Q${x3},${y3} ${cx},${cy}`;
         };
+        // draw petals
         data.forEach(d => {
-            const cx = x(d.year);
-            const cy = y(d.totalAssets);
             const length = 40;
             const numPetals = Math.ceil(d.bankFailures);
             const angleIncrement = (Math.PI / 2) / (numPetals + 1);
-            const maxAngle = Math.PI / 6;
             const startAngle = -Math.PI / 2 - (numPetals - 1) * angleIncrement / 2;
-
             for (let i = 0; i < numPetals; i++) {
-                // const angle = i * angleIncrement + startAngle;
                 svg2.append("path")
                     .attr("class", "flowerpiece")
                     .attr("id", `petal-${d.year}-${i}`)
